@@ -10,6 +10,8 @@ public class PlayerCtrl : MonoBehaviour
   InputManager inputManager;
   public float attackRange = 1.5f;
   GameRuleCtrl gameRuleCtrl;
+  public GameObject hitEffect;
+  TargetCursor targetCursor;
 
   // ステートの種類.
   enum State
@@ -32,6 +34,8 @@ public class PlayerCtrl : MonoBehaviour
     charaAnimation = GetComponent<CharaAnimation> ();
     inputManager = FindObjectOfType<InputManager> ();
     gameRuleCtrl = FindObjectOfType<GameRuleCtrl> ();
+    targetCursor = FindObjectOfType<TargetCursor> ();
+    targetCursor.SetPosition (transform.position);
   }
 
   // Update is called once per frame
@@ -82,8 +86,10 @@ public class PlayerCtrl : MonoBehaviour
       RaycastHit hitInfo;
       if (Physics.Raycast (ray, out hitInfo, RayCastMaxDistance, (1 << LayerMask.NameToLayer ("Ground")) | (1 << LayerMask.NameToLayer ("EnemyHit")))) {
         // 地面がクリックされた.
-        if (hitInfo.collider.gameObject.layer == LayerMask.NameToLayer ("Ground"))
+        if (hitInfo.collider.gameObject.layer == LayerMask.NameToLayer ("Ground")) {
           SendMessage ("SetDestination", hitInfo.point);
+          targetCursor.SetPosition (hitInfo.point);
+        }
         // 敵がクリックされた.
         if (hitInfo.collider.gameObject.layer == LayerMask.NameToLayer ("EnemyHit")) {
           // 水平距離をチェックして攻撃するか決める.
@@ -93,9 +99,12 @@ public class PlayerCtrl : MonoBehaviour
           if (distance < attackRange) {
             // 攻撃.
             attackTarget = hitInfo.collider.transform;
+            targetCursor.SetPosition (attackTarget.position);
             ChangeState (State.Attacking);
-          } else
+          } else {
             SendMessage ("SetDestination", hitInfo.point);
+            targetCursor.SetPosition (hitInfo.point);
+          }
         }
       }
     }
@@ -130,6 +139,10 @@ public class PlayerCtrl : MonoBehaviour
 
   void Damage (AttackArea.AttackInfo attackInfo)
   {
+    GameObject effect = Instantiate (hitEffect, transform.position, Quaternion.identity) as GameObject;
+    effect.transform.localPosition = transform.position + new Vector3 (0.0f, 0.5f, 0.0f);
+    Destroy (effect, 0.3f);
+
     status.HP -= attackInfo.attackPower;
     if (status.HP <= 0) {
       status.HP = 0;
