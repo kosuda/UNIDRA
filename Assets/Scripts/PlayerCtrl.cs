@@ -9,7 +9,8 @@ public class PlayerCtrl : MonoBehaviour
   Transform attackTarget;
   InputManager inputManager;
   public float attackRange = 1.5f;
-	
+  GameRuleCtrl gameRuleCtrl;
+
   // ステートの種類.
   enum State
   {
@@ -22,16 +23,17 @@ public class PlayerCtrl : MonoBehaviour
   // 現在のステート.
   State nextState = State.Walking;
   // 次のステート.
-	
-	
+
+
   // Use this for initialization
   void Start ()
   {
     status = GetComponent<CharacterStatus> ();
     charaAnimation = GetComponent<CharaAnimation> ();
     inputManager = FindObjectOfType<InputManager> ();
+    gameRuleCtrl = FindObjectOfType<GameRuleCtrl> ();
   }
-	
+
   // Update is called once per frame
   void Update ()
   {
@@ -43,7 +45,7 @@ public class PlayerCtrl : MonoBehaviour
       Attacking ();
       break;
     }
-		
+
     if (state != nextState) {
       state = nextState;
       switch (state) {
@@ -59,8 +61,8 @@ public class PlayerCtrl : MonoBehaviour
       }
     }
   }
-	
-	
+
+
   // ステートを変更する.
   void ChangeState (State nextState)
   {
@@ -98,21 +100,21 @@ public class PlayerCtrl : MonoBehaviour
       }
     }
   }
-	
+
   // 攻撃ステートが始まる前に呼び出される.
   void AttackStart ()
   {
     StateStartCommon ();
     status.attacking = true;
-		
+
     // 敵の方向に振り向かせる.
     Vector3 targetDirection = (attackTarget.position - transform.position).normalized;
     SendMessage ("SetDirection", targetDirection);
-		
+
     // 移動を止める.
     SendMessage ("StopMove");
   }
-	
+
   // 攻撃中の処理.
   void Attacking ()
   {
@@ -123,6 +125,7 @@ public class PlayerCtrl : MonoBehaviour
   void Died ()
   {
     status.died = true;
+    gameRuleCtrl.GameOver ();
   }
 
   void Damage (AttackArea.AttackInfo attackInfo)
@@ -134,7 +137,7 @@ public class PlayerCtrl : MonoBehaviour
       ChangeState (State.Died);
     }
   }
-	
+
   // ステートが始まる前にステータスを初期化する.
   void StateStartCommon ()
   {
@@ -142,3 +145,4 @@ public class PlayerCtrl : MonoBehaviour
     status.died = false;
   }
 }
+

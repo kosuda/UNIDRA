@@ -27,6 +27,10 @@ public class AttackArea : MonoBehaviour
     AttackInfo attackInfo = new AttackInfo ();
     // 攻撃力の計算.
     attackInfo.attackPower = status.Power;
+    // 攻撃強化中
+    if (status.powerBoost)
+      attackInfo.attackPower += attackInfo.attackPower;
+
     attackInfo.attacker = transform.root;
 		
     return attackInfo;
@@ -45,13 +49,13 @@ public class AttackArea : MonoBehaviour
   // 攻撃判定を有効にする.
   void OnAttack ()
   {
-    GetComponent<Collider> ().enabled = true;
+    GetComponent<Collider>().enabled = true;
   }
 	
 	
   // 攻撃判定を無効にする.
   void OnAttackTermination ()
   {
-    GetComponent<Collider> ().enabled = false;
+    GetComponent<Collider>().enabled = false;
   }
 }

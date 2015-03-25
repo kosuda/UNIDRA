@@ -27,7 +27,7 @@ public class DropItem : MonoBehaviour
   void Start ()
   {
     Vector3 velocity = Random.insideUnitSphere * 2.0f + Vector3.up * 8.0f;
-    GetComponent<Rigidbody> ().velocity = velocity;
+    GetComponent<Rigidbody>().velocity = velocity;
   }
 	
   // Update is called once per frame
