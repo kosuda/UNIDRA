@@ -12,7 +12,7 @@ public class PlayerCtrl : MonoBehaviour
   GameRuleCtrl gameRuleCtrl;
   public GameObject hitEffect;
   TargetCursor targetCursor;
-
+	
   // ステートの種類.
   enum State
   {
@@ -26,7 +26,10 @@ public class PlayerCtrl : MonoBehaviour
   State nextState = State.Walking;
   // 次のステート.
 
-
+  public AudioClip deathSeClip;
+  AudioSource deathSeAudio;
+	
+	
   // Use this for initialization
   void Start ()
   {
@@ -36,8 +39,13 @@ public class PlayerCtrl : MonoBehaviour
     gameRuleCtrl = FindObjectOfType<GameRuleCtrl> ();
     targetCursor = FindObjectOfType<TargetCursor> ();
     targetCursor.SetPosition (transform.position);
-  }
 
+    // オーディオの初期化.
+    deathSeAudio = gameObject.AddComponent<AudioSource> ();
+    deathSeAudio.loop = false;
+    deathSeAudio.clip = deathSeClip;
+  }
+	
   // Update is called once per frame
   void Update ()
   {
@@ -49,7 +57,7 @@ public class PlayerCtrl : MonoBehaviour
       Attacking ();
       break;
     }
-
+		
     if (state != nextState) {
       state = nextState;
       switch (state) {
@@ -65,8 +73,8 @@ public class PlayerCtrl : MonoBehaviour
       }
     }
   }
-
-
+	
+	
   // ステートを変更する.
   void ChangeState (State nextState)
   {
@@ -109,21 +117,21 @@ public class PlayerCtrl : MonoBehaviour
       }
     }
   }
-
+	
   // 攻撃ステートが始まる前に呼び出される.
   void AttackStart ()
   {
     StateStartCommon ();
     status.attacking = true;
-
+		
     // 敵の方向に振り向かせる.
     Vector3 targetDirection = (attackTarget.position - transform.position).normalized;
     SendMessage ("SetDirection", targetDirection);
-
+		
     // 移動を止める.
     SendMessage ("StopMove");
   }
-
+	
   // 攻撃中の処理.
   void Attacking ()
   {
@@ -135,6 +143,9 @@ public class PlayerCtrl : MonoBehaviour
   {
     status.died = true;
     gameRuleCtrl.GameOver ();
+
+    // オーディオの再生.
+    deathSeAudio.Play ();
   }
 
   void Damage (AttackArea.AttackInfo attackInfo)
@@ -142,7 +153,7 @@ public class PlayerCtrl : MonoBehaviour
     GameObject effect = Instantiate (hitEffect, transform.position, Quaternion.identity) as GameObject;
     effect.transform.localPosition = transform.position + new Vector3 (0.0f, 0.5f, 0.0f);
     Destroy (effect, 0.3f);
-
+		
     status.HP -= attackInfo.attackPower;
     if (status.HP <= 0) {
       status.HP = 0;
@@ -150,7 +161,7 @@ public class PlayerCtrl : MonoBehaviour
       ChangeState (State.Died);
     }
   }
-
+	
   // ステートが始まる前にステータスを初期化する.
   void StateStartCommon ()
   {
