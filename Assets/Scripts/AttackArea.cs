@@ -50,6 +50,9 @@ public class AttackArea : MonoBehaviour
     // 攻撃が当たった相手のDamageメッセージをおくる.
     other.SendMessage ("Damage", GetAttackInfo ());
 
+    // 攻撃した対象を保存.
+    status.lastAttackTarget = other.transform.root.gameObject;
+
     // オーディオ再生.
     hitSeAudio.Play ();
   }

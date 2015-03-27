@@ -5,6 +5,8 @@ Temp/
 Obj/
 UnityGenerated/
 Library/
+*.app
+UNIDRA/
 
 # ===================================== #
 # Visual Studio / MonoDevelop generated #
